@@ -10,13 +10,19 @@ describe("FundMe", async function () {
 
 	beforeEach(async function () {
 		deployer = (await getNamedAccounts()).deployer;
+		console.log(deployer)
 		fundMe = await ethers.getContract("FundMe", deployer);
 	});
 
 	it("allows people to fund and withdraw", async function () {
-		await fundMe.fund({ value: sendValue });
-		await fundMe.withdraw();
-		const endingBalance = await fundMe.provider.getBalance(fundMe.address);
-		assert.equal(endingBalance.toString(), "0");
+		const fundTx = await fundMe.fund({value: sendValue});
+		console.log("Funded and waiting");
+		fundTx.wait(1);
+		const withdrawTx = await fundMe.withdraw();
+		console.log("Withdrawn and waiting")
+		withdrawTx.wait(1);
+		console.log("Checking balance");
+		const endingFundMeBalance = await fundMe.provider.getBalance(fundMe.address);
+		assert(endingFundMeBalance.toString(), "0");
 	});
 });
